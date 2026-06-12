@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\UserPoint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -28,20 +29,24 @@ class AuthController extends Controller
             ]
         );
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role'],
-        ]);
+        $user = DB::transaction(function () use ($validated) {
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role' => $validated['role'],
+            ]);
 
-        // Create user points record
-        UserPoint::create([
-            'user_id' => $user->id,
-            'total_points' => 0,
-            'redeemed_points' => 0,
-            'available_points' => 0,
-        ]);
+            // Create user points record
+            UserPoint::create([
+                'user_id' => $user->id,
+                'total_points' => 0,
+                'redeemed_points' => 0,
+                'available_points' => 0,
+            ]);
+
+            return $user;
+        });
 
         $token = $user->createToken('auth-token')->plainTextToken;
 

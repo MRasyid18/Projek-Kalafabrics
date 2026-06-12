@@ -35,7 +35,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/auth/me', [AuthController::class, 'me']);
 
         // B2C Member Routes
-        Route::middleware('role:b2c,admin')->group(function () {
+        Route::middleware('api.role:b2c,admin')->group(function () {
             Route::apiResource('/orders', OrderController::class);
             Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice']);
             Route::get('/my-points', [PointsController::class, 'show']);

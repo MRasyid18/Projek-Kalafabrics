@@ -18,12 +18,15 @@ class ProductController extends Controller
         }
 
         if ($request->has('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%')
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
                   ->orWhere('description', 'like', '%' . $request->search . '%');
+            });
         }
 
         if ($request->has('product_type')) {
-            $query->where('product_type', 'like', '%' . $request->product_type . '%');
+            // BUG FIX: Gunakan whereIn agar produk berstatus 'both' tetap ikut terambil
+            $query->whereIn('product_type', [$request->product_type, 'both']);
         }
 
         $products = $query->paginate(15);
@@ -43,8 +46,8 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'sku' => 'required|string|unique:products',
             'image_path' => 'nullable|string',
-            'points_reward' => 'integer|min:0',
-            'product_type' => 'in:b2c,b2b,both',
+            'points_reward' => 'nullable|integer|min:0', // FIX: Tambah nullable
+            'product_type' => 'required|in:b2c,b2b,both', // FIX: Tambah required
             'bulk_discount_percentage' => 'nullable|numeric|min:0|max:100',
         ]);
 
@@ -60,20 +63,21 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
+        // BUG FIX: Tambahkan 'sometimes' untuk request update parsial (PATCH)
         $validated = $request->validate([
-            'category_id' => 'exists:categories,id',
-            'name' => 'string|max:255',
-            'slug' => 'string|unique:products,slug,' . $product->id,
-            'description' => 'string',
+            'category_id' => 'sometimes|exists:categories,id',
+            'name' => 'sometimes|string|max:255',
+            'slug' => 'sometimes|string|unique:products,slug,' . $product->id,
+            'description' => 'sometimes|string',
             'environmental_impact' => 'nullable|string',
-            'price' => 'numeric|min:0',
-            'stock' => 'integer|min:0',
-            'sku' => 'string|unique:products,sku,' . $product->id,
+            'price' => 'sometimes|numeric|min:0',
+            'stock' => 'sometimes|integer|min:0',
+            'sku' => 'sometimes|string|unique:products,sku,' . $product->id,
             'image_path' => 'nullable|string',
-            'points_reward' => 'integer|min:0',
-            'product_type' => 'in:b2c,b2b,both',
+            'points_reward' => 'nullable|integer|min:0',
+            'product_type' => 'sometimes|in:b2c,b2b,both',
             'bulk_discount_percentage' => 'nullable|numeric|min:0|max:100',
-            'active' => 'boolean',
+            'active' => 'sometimes|boolean',
         ]);
 
         $product->update($validated);
@@ -84,7 +88,6 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $product->delete();
-
         return response()->json(['message' => 'Product deleted successfully']);
     }
 }

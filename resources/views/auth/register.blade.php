@@ -11,7 +11,6 @@
 
 <div class="register-layout">
 
-  <!-- Left Panel -->
   <div class="register-left">
     <img class="register-left-bg" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80" alt="bg">
     <div class="register-left-brand">
@@ -25,7 +24,6 @@
     </div>
   </div>
 
-  <!-- Right Panel -->
   <div class="register-right">
     <a href="{{ route('home') }}" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);margin-bottom:32px;transition:color var(--t)">
       ← Kembali ke Beranda
@@ -80,11 +78,10 @@
         </div>
       </div>
 
-      <!-- Pilih Peran -->
       <div style="margin:32px 0 20px">
         <label class="form-label">Pilih Peran Anda <span style="color:var(--danger)">*</span></label>
 
-        <div class="role-card selected" onclick="selectRole(this, 'pengguna')" id="role-pengguna">
+        <div class="role-card selected" onclick="selectRole(this, 'b2c')" id="role-b2c">
           <div class="role-card-header">
             <div class="role-title">
               <span>🌿</span> Member / Pengguna
@@ -96,6 +93,20 @@
             </div>
           </div>
           <div class="role-desc">Untuk Anda yang ingin mendonasikan kain, membeli produk, dan mengumpulkan poin.</div>
+        </div>
+
+        <div class="role-card" onclick="selectRole(this, 'b2b')" id="role-b2b">
+          <div class="role-card-header">
+            <div class="role-title">
+              <span>🏢</span> Mitra B2B
+            </div>
+            <div class="role-check">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5">
+                <polyline points="2,6 5,9 10,3"/>
+              </svg>
+            </div>
+          </div>
+          <div class="role-desc">Untuk kafe, restoran, atau perusahaan yang ingin solusi tekstil berkelanjutan.</div>
         </div>
 
         <div class="role-card" onclick="selectRole(this, 'ranger')" id="role-ranger">
@@ -112,7 +123,7 @@
           <div class="role-desc">Untuk aktivis muda yang ingin bergerak di lapangan dan mengedukasi masyarakat.</div>
         </div>
 
-        <input type="hidden" name="role" id="role-input" value="{{ old('role', 'pengguna') }}">
+        <input type="hidden" name="role" id="role-input" value="{{ old('role', 'b2c') }}">
       </div>
 
       <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-bottom:20px">
@@ -140,10 +151,14 @@ function togglePass(inputId, btn) {
   else { inp.type = 'password'; btn.innerHTML = '&#128064;'; }
 }
 
-// Restore role selection jika ada old value
-var oldRole = '{{ old("role", "pengguna") }}';
+// Restore role selection jika ada old value dari form error
+var oldRole = '{{ old("role", "b2c") }}';
 if (oldRole === 'ranger') {
   selectRole(document.getElementById('role-ranger'), 'ranger');
+} else if (oldRole === 'b2b') {
+  selectRole(document.getElementById('role-b2b'), 'b2b');
+} else {
+  selectRole(document.getElementById('role-b2c'), 'b2c');
 }
 </script>
 </body>
