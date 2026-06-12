@@ -26,7 +26,7 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected const VALID_ROLES = ['admin', 'b2c', 'b2b', 'ranger'];
+    protected const VALID_ROLES = ['admin', 'b2c', 'b2b', 'ranger', 'pengguna'];
 
     protected static function boot()
     {

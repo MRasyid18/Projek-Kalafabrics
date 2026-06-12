@@ -58,26 +58,27 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name'                  => 'required|string|max:100',
-            'email'                 => 'required|email|unique:users,email',
-            'password'              => 'required|min:8|confirmed',
-            'role'                  => 'required|in:pengguna,ranger',
+            'name'     => 'required|string|max:100',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|min:8|confirmed',
+            'role'     => 'required|in:b2c,ranger',
         ], [
-            'name.required'         => 'Nama lengkap wajib diisi.',
-            'email.required'        => 'Email wajib diisi.',
-            'email.email'           => 'Format email tidak valid.',
-            'email.unique'          => 'Email sudah terdaftar.',
-            'password.required'     => 'Password wajib diisi.',
-            'password.min'          => 'Password minimal 8 karakter.',
-            'password.confirmed'    => 'Konfirmasi password tidak cocok.',
-            'role.required'         => 'Pilih peran Anda.',
+            'name.required'      => 'Nama lengkap wajib diisi.',
+            'email.required'     => 'Email wajib diisi.',
+            'email.email'        => 'Format email tidak valid.',
+            'email.unique'       => 'Email sudah terdaftar.',
+            'password.required'  => 'Password wajib diisi.',
+            'password.min'       => 'Password minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'role.required'      => 'Pilih peran Anda.',
+            'role.in'            => 'Peran tidak valid. Pilih Member atau Ranger.',
         ]);
 
         $user = User::create([
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => $request->role, // pengguna | ranger
+            'role'     => $request->role, // b2c | ranger
         ]);
 
         Auth::login($user);
