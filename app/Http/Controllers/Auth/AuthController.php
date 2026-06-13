@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    /* ─── Tampilkan halaman login ─── */
     public function showLogin()
     {
         if (Auth::check()) {
@@ -19,34 +18,36 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    /* ─── Proses login ─── */
     public function login(Request $request)
     {
         $request->validate([
             'email'    => 'required|email',
             'password' => 'required|min:6',
-        ], [
-            'email.required'    => 'Email wajib diisi.',
-            'email.email'       => 'Format email tidak valid.',
-            'password.required' => 'Password wajib diisi.',
-            'password.min'      => 'Password minimal 6 karakter.',
         ]);
 
         $credentials = $request->only('email', 'password');
         $remember    = $request->boolean('remember');
 
         if (Auth::attempt($credentials, $remember)) {
+            $user = Auth::user();
+
+            // LOGIKA BARU: Cek apakah akun Ranger sudah diverifikasi Admin
+            if ($user->role === 'ranger' && !$user->is_verified) {
+                Auth::logout();
+                return back()->withInput($request->only('email'))->withErrors([
+                    'email' => 'Akun Ranger Anda sedang dalam tahap tinjauan. Mohon tunggu verifikasi dari Admin.'
+                ]);
+            }
+
             $request->session()->regenerate();
-            // Arahkan sesuai role setelah login berhasil
-            return $this->redirectByRole(Auth::user())->with('success', 'Login berhasil!');
+            return $this->redirectByRole($user)->with('success', 'Login berhasil!');
         }
 
-        return back()
-            ->withInput($request->only('email'))
-            ->withErrors(['email' => 'Email atau password salah.']);
+        return back()->withInput($request->only('email'))->withErrors([
+            'email' => 'Email atau kata sandi yang Anda masukkan salah.'
+        ]);
     }
 
-    /* ─── Tampilkan halaman register ─── */
     public function showRegister()
     {
         if (Auth::check()) {
@@ -55,7 +56,6 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    /* ─── Proses register ─── */
     public function register(Request $request)
     {
         $request->validate([
@@ -63,33 +63,31 @@ class AuthController extends Controller
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
             'role'     => 'required|in:b2c,ranger',
-        ], [
-            'name.required'      => 'Nama lengkap wajib diisi.',
-            'email.required'     => 'Email wajib diisi.',
-            'email.email'        => 'Format email tidak valid.',
-            'email.unique'       => 'Email sudah terdaftar.',
-            'password.required'  => 'Password wajib diisi.',
-            'password.min'       => 'Password minimal 8 karakter.',
-            'password.confirmed' => 'Konfirmasi password tidak cocok.',
-            'role.required'      => 'Pilih peran Anda.',
-            'role.in'            => 'Peran tidak valid. Pilih Member atau Ranger.',
         ]);
+
+        // LOGIKA BARU: Tentukan status verifikasi
+        $isVerified = ($request->role === 'ranger') ? false : true;
 
         $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'role'     => $request->role, // b2c | ranger
+            'name'        => $request->name,
+            'email'       => $request->email,
+            'password'    => Hash::make($request->password),
+            'role'        => $request->role,
+            'is_verified' => $isVerified,
         ]);
 
+        // LOGIKA BARU: Jika Ranger, jangan login otomatis, arahkan ke halaman login dengan pesan sukses
+        if (!$isVerified) {
+            return redirect()->route('login')->with('success', 'Pendaftaran berhasil! Akun Ranger Anda sedang menunggu verifikasi dari Admin sebelum dapat digunakan.');
+        }
+
+        // Jika B2C, login otomatis
         Auth::login($user);
         $request->session()->regenerate();
 
-        // Gunakan redirectByRole agar Ranger yang baru daftar langsung masuk ke Hub
         return $this->redirectByRole($user)->with('success', 'Akun berhasil dibuat! Selamat datang, ' . $user->name . '.');
     }
 
-    /* ─── Logout ─── */
     public function logout(Request $request)
     {
         Auth::logout();
@@ -98,17 +96,14 @@ class AuthController extends Controller
         return redirect()->route('login')->with('success', 'Anda berhasil keluar.');
     }
 
-    /* ─── Helper: redirect berdasarkan role ─── */
     private function redirectByRole(User $user)
     {
         if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard');
         } elseif ($user->role === 'ranger') {
-            // FIX: Tambahkan kondisi khusus untuk role ranger
             return redirect()->route('ranger.dashboard');
         }
         
-        // Default untuk pengguna biasa (B2C/B2B)
         return redirect()->route('home');
     }
 }

@@ -170,7 +170,6 @@
 </head>
 <body>
 
-  <!-- ── Sidebar ── -->
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-brand-icon">K</div>
@@ -189,20 +188,16 @@
 
       <div class="nav-section-label" style="margin-top:8px">Manajemen</div>
 
-      <span class="nav-item coming-soon">
-        <span class="nav-icon">👥</span> Pengguna
-        <span class="nav-badge">Soon</span>
-      </span>
+      <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+        <span class="nav-icon">👥</span> Pengguna & Ranger
+      </a>
+
       <a href="{{ route('admin.products.index') }}" class="nav-item {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
         <span class="nav-icon">📦</span> Produk
       </a>
       <a href="{{ route('admin.orders.index') }}" class="nav-item {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
         <span class="nav-icon">🛒</span> Pesanan
       </a>
-      <span class="nav-item coming-soon">
-        <span class="nav-icon">🤝</span> Ranger
-        <span class="nav-badge">Soon</span>
-      </span>
 
       <div class="nav-section-label" style="margin-top:8px">Konten</div>
 
@@ -240,10 +235,8 @@
     </div>
   </aside>
 
-  <!-- ── Main Area ── -->
   <div class="admin-main">
 
-    <!-- Top Bar -->
     <div class="admin-topbar">
       <span class="topbar-title">@yield('page-title', 'Dashboard')</span>
       <div class="topbar-right">
@@ -255,11 +248,15 @@
       </div>
     </div>
 
-    <!-- Content -->
     <div class="admin-content">
       @if(session('success'))
         <div style="background:#e8f5f0;border:1px solid #c8e6d8;border-radius:10px;padding:12px 18px;margin-bottom:20px;font-size:13px;color:#2d6a4f">
           ✅ {{ session('success') }}
+        </div>
+      @endif
+      @if(session('error'))
+        <div style="background:#fdf0ee;border:1px solid #f5c6c0;border-radius:10px;padding:12px 18px;margin-bottom:20px;font-size:13px;color:#c0392b">
+          ❌ {{ session('error') }}
         </div>
       @endif
       @yield('content')

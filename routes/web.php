@@ -55,6 +55,11 @@ Route::prefix('admin')
         Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
         Route::resource('/products', App\Http\Controllers\Admin\ProductController::class);
         Route::resource('/orders', App\Http\Controllers\Admin\OrderController::class);
+        
+        // FITUR BARU: Manajemen Pengguna & Verifikasi Ranger
+        Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+        Route::patch('/users/{user}/verify', [App\Http\Controllers\Admin\UserController::class, 'verify'])->name('users.verify');
+        Route::delete('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
     });
 
 Route::middleware(['auth', 'web.role:ranger'])->prefix('ranger-hub')->name('ranger.')->group(function () {
