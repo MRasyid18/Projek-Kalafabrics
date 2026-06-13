@@ -69,7 +69,6 @@
 </head>
 <body>
 
-  <!-- Navbar -->
   <nav class="navbar">
     <div class="container">
       <a href="{{ route('home') }}" class="navbar-brand">KalaFabrics</a>
@@ -104,7 +103,7 @@
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
               </svg>
               Cart
-              <span class="cart-count">0</span>
+              <span class="cart-count" id="global-cart-count">0</span>
             </a>
           @endif
 
@@ -152,10 +151,8 @@
     <div class="flash-bar flash-error">❌ {{ session('error') }}</div>
   @endif
 
-  <!-- Content -->
   @yield('content')
 
-  <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
@@ -198,6 +195,35 @@
       var menu = document.getElementById('userMenu');
       if (menu && !menu.contains(e.target)) {
         menu.classList.remove('open');
+      }
+    });
+
+    // BUG FIX: Fungsi untuk mengupdate angka keranjang di navbar
+    function updateGlobalCartCount() {
+      var cartCountEl = document.getElementById('global-cart-count');
+      if (cartCountEl) {
+        var cartData = JSON.parse(sessionStorage.getItem('kala_cart')) || [];
+        var totalItems = 0;
+        
+        // Hitung total kuantitas dari semua produk
+        cartData.forEach(function(item) {
+          totalItems += parseInt(item.qty);
+        });
+        
+        cartCountEl.textContent = totalItems;
+      }
+    }
+
+    // Jalankan fungsi update saat halaman dimuat
+    document.addEventListener('DOMContentLoaded', function() {
+      updateGlobalCartCount();
+    });
+
+    // Opsional: Jika Anda menghapus atau menambah item di halaman Cart, 
+    // update angkanya juga secara langsung
+    window.addEventListener('storage', function(e) {
+      if(e.key === 'kala_cart') {
+        updateGlobalCartCount();
       }
     });
   </script>

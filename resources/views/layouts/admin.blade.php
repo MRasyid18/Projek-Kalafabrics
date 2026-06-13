@@ -193,14 +193,12 @@
         <span class="nav-icon">👥</span> Pengguna
         <span class="nav-badge">Soon</span>
       </span>
-      <span class="nav-item coming-soon">
+      <a href="{{ route('admin.products.index') }}" class="nav-item {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
         <span class="nav-icon">📦</span> Produk
-        <span class="nav-badge">Soon</span>
-      </span>
-      <span class="nav-item coming-soon">
+      </a>
+      <a href="{{ route('admin.orders.index') }}" class="nav-item {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
         <span class="nav-icon">🛒</span> Pesanan
-        <span class="nav-badge">Soon</span>
-      </span>
+      </a>
       <span class="nav-item coming-soon">
         <span class="nav-icon">🤝</span> Ranger
         <span class="nav-badge">Soon</span>
