@@ -127,6 +127,16 @@
                 <div class="dropdown-divider"></div>
               @endif
 
+              @if(auth()->user()->role === 'ranger')
+                <a href="{{ route('ranger.dashboard') }}" class="dropdown-item">🏕️ Hub Ranger</a>
+                <div class="dropdown-divider"></div>
+              @endif
+
+              @if(!auth()->user()->isAdmin())
+                <a href="{{ route('user.orders') }}" class="dropdown-item">📦 Pesanan Saya</a>
+                <div class="dropdown-divider"></div>
+              @endif
+
               <a href="{{ route('home') }}" class="dropdown-item">🏠 Beranda</a>
 
               <div class="dropdown-divider"></div>

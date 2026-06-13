@@ -37,7 +37,8 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
-            return $this->redirectByRole(Auth::user());
+            // Arahkan sesuai role setelah login berhasil
+            return $this->redirectByRole(Auth::user())->with('success', 'Login berhasil!');
         }
 
         return back()
@@ -84,7 +85,8 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('home')->with('success', 'Akun berhasil dibuat! Selamat datang, ' . $user->name . '.');
+        // Gunakan redirectByRole agar Ranger yang baru daftar langsung masuk ke Hub
+        return $this->redirectByRole($user)->with('success', 'Akun berhasil dibuat! Selamat datang, ' . $user->name . '.');
     }
 
     /* ─── Logout ─── */
@@ -101,7 +103,12 @@ class AuthController extends Controller
     {
         if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard');
+        } elseif ($user->role === 'ranger') {
+            // FIX: Tambahkan kondisi khusus untuk role ranger
+            return redirect()->route('ranger.dashboard');
         }
+        
+        // Default untuk pengguna biasa (B2C/B2B)
         return redirect()->route('home');
     }
 }

@@ -56,3 +56,10 @@ Route::prefix('admin')
         Route::resource('/products', App\Http\Controllers\Admin\ProductController::class);
         Route::resource('/orders', App\Http\Controllers\Admin\OrderController::class);
     });
+
+Route::middleware(['auth', 'web.role:ranger'])->prefix('ranger-hub')->name('ranger.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\RangerController::class, 'dashboard'])->name('dashboard');
+    Route::post('/tasks/{id}/take', [App\Http\Controllers\RangerController::class, 'takeTask'])->name('tasks.take');
+    Route::post('/assignments/{id}/complete', [App\Http\Controllers\RangerController::class, 'completeTask'])->name('tasks.complete');
+    Route::put('/profile', [App\Http\Controllers\RangerController::class, 'updateProfile'])->name('profile.update');
+});
